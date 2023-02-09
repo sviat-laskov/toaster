@@ -24,6 +24,8 @@ jobs:
     needs: pack-integration-messages
     runs-on: ubuntu-latest
     steps:
+    - name: Print directories structure
+      run: tree .
     - name: Restore dependencies
       run: dotnet restore ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
