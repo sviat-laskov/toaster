@@ -1,0 +1,37 @@
+name: Test
+
+on:
+  test:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pack-integration-messages:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Run script
+      run: ./contracts-nuget-push.ps1
+      shell: pwsh
+      working-directory: ../../scripts/
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Restore dependencies
+      run: dotnet restore ./PushUpdatesHub.sln
+      working-directory: ../../
+    - name: Build
+      run: dotnet build --no-restore ./PushUpdatesHub.sln
+      working-directory: ../../
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ./PushUpdatesHub.sln
+      working-directory: ../../
