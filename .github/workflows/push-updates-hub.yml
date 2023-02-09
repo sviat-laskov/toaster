@@ -1,7 +1,6 @@
 name: Test PushUpdatesHub
 
 on:
-  test:
   push:
     branches:
       - main
