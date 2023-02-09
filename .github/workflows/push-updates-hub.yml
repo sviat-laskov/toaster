@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  pack-integration-messages:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -16,26 +16,16 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Run script
+    - name: Pack integration messages
       run: ./contracts-nuget-push.ps1
       shell: pwsh
       working-directory: ./push-updates-hub/scripts/
-  build:
-    needs: pack-integration-messages
-    runs-on: ubuntu-latest
-    steps:
-    - name: Print directories structure
-      run: echo $(tree)
     - name: Restore dependencies
       run: dotnet restore ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
     - name: Build
       run: dotnet build --no-restore ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
     - name: Test
       run: dotnet test --no-build --verbosity normal ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
