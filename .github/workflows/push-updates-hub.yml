@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Print directories structure
-      run: tree .
+      run: tree
     - name: Restore dependencies
       run: dotnet restore ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
