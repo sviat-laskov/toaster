@@ -21,15 +21,17 @@ jobs:
       shell: pwsh
       working-directory: ./push-updates-hub/scripts/
   build:
+    needs: pack-integration-messages
     runs-on: ubuntu-latest
     steps:
     - name: Restore dependencies
       run: dotnet restore ./PushUpdatesHub.sln
-      working-directory: ../push-updates-hub/
+      working-directory: ./push-updates-hub/
     - name: Build
       run: dotnet build --no-restore ./PushUpdatesHub.sln
       working-directory: ./push-updates-hub/
   test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Test
