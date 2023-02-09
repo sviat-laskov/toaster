@@ -1,0 +1,1 @@
+/opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import/ --realm toaster --users realm_file

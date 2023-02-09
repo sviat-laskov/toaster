@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{216608F4-B2B0-4CAA-B293-D04532741C42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D79321B5-993B-4037-89A4-0AD891B4414F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushUpdatesHub.Api", "src\PushUpdatesHub.Api\PushUpdatesHub.Api.csproj", "{32F1ABFD-AFB5-4B52-A326-B60EB43B7738}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushUpdatesHub.Common", "src\PushUpdatesHub.Common\PushUpdatesHub.Common.csproj", "{FEADE31D-482D-4E29-BA92-8B053CFEF725}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{C61CB937-1543-4A37-A582-1F1055291F92}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushUpdatesHub.IntegrationMessages", "src\shared\PushUpdatesHub.IntegrationMessages\PushUpdatesHub.IntegrationMessages.csproj", "{B00A613A-DD9D-4475-873C-322932974941}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C5DAA5A4-C5BB-436F-A5FA-1E87191289A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushUpdatesHub.Tests.Integration", "tests\PushUpdatesHub.Tests.Integration\PushUpdatesHub.Tests.Integration.csproj", "{DA382F07-76E5-4285-8347-9716F6705D32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{216608F4-B2B0-4CAA-B293-D04532741C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{216608F4-B2B0-4CAA-B293-D04532741C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{216608F4-B2B0-4CAA-B293-D04532741C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{216608F4-B2B0-4CAA-B293-D04532741C42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32F1ABFD-AFB5-4B52-A326-B60EB43B7738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F1ABFD-AFB5-4B52-A326-B60EB43B7738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F1ABFD-AFB5-4B52-A326-B60EB43B7738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F1ABFD-AFB5-4B52-A326-B60EB43B7738}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEADE31D-482D-4E29-BA92-8B053CFEF725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEADE31D-482D-4E29-BA92-8B053CFEF725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEADE31D-482D-4E29-BA92-8B053CFEF725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEADE31D-482D-4E29-BA92-8B053CFEF725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B00A613A-DD9D-4475-873C-322932974941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B00A613A-DD9D-4475-873C-322932974941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B00A613A-DD9D-4475-873C-322932974941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B00A613A-DD9D-4475-873C-322932974941}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA382F07-76E5-4285-8347-9716F6705D32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA382F07-76E5-4285-8347-9716F6705D32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA382F07-76E5-4285-8347-9716F6705D32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA382F07-76E5-4285-8347-9716F6705D32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32F1ABFD-AFB5-4B52-A326-B60EB43B7738} = {D79321B5-993B-4037-89A4-0AD891B4414F}
+		{FEADE31D-482D-4E29-BA92-8B053CFEF725} = {D79321B5-993B-4037-89A4-0AD891B4414F}
+		{B00A613A-DD9D-4475-873C-322932974941} = {C61CB937-1543-4A37-A582-1F1055291F92}
+		{DA382F07-76E5-4285-8347-9716F6705D32} = {C5DAA5A4-C5BB-436F-A5FA-1E87191289A5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37E766A8-F910-4B09-B341-F9E4337DE656}
+	EndGlobalSection
+EndGlobal

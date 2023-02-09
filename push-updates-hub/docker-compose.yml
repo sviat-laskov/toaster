@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  pushupdateshub:
+    image: pushupdateshub
+    build:
+      context: ../
+      dockerfile: ./push-updates-hub/src/PushUpdatesHub.Api/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+  rabbitmq:
+    image: rabbitmq:3.11.0-management
+  keycloak:
+    image: quay.io/keycloak/keycloak:20.0.2
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+  keycloak-db:
+    image: postgres:15.1-alpine3.17
+  traefik:
+    image: traefik:v2.9.1
+volumes:
+  rabbitmq-data:
+  rabbitmq-logs:
+  keycloak-db-data:

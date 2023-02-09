@@ -1,0 +1,107 @@
+version: '3.4'
+
+services:
+  pushupdateshub:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RABBITMQ__CONNECTIONSTRING: host=rabbitmq;port=5672;publisherConfirms=true;username=${RABBITMQ_USER};password=${RABBITMQ_PASSWORD}
+      KEYCLOAK__URI: http://keycloak.pushupdateshub.localhost/
+      KEYCLOAK__REALMID: toaster
+      KEYCLOAK__AUDIENCE: account
+    healthcheck:
+      test: curl --fail http://localhost/health/ || exit 1
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    labels:
+      traefik.enable: true
+      traefik.http.routers.pushupdateshub.rule: Host(`pushupdateshub.localhost`)
+      traefik.http.services.pushupdateshub.loadbalancer.server.port: 80
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: rabbitmq-diagnostics --quiet ping
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: volume
+        source: rabbitmq-data
+        target: /var/lib/rabbitmq/
+      - type: volume
+        source: rabbitmq-logs
+        target: /var/log/rabbitmq/
+    labels:
+      traefik.enable: true
+      traefik.http.routers.rabbitmq.rule: Host(`ui.rabbitmq.pushupdateshub.localhost`)
+      traefik.http.services.rabbitmq.loadbalancer.server.port: 15672
+  keycloak:
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      DB_VENDOR: postgres
+      DB_ADDR: keycloak-db
+      DB_DATABASE: ${KEYCLOAK_DB_NAME}
+      DB_USER: ${KEYCLOAK_DB_USER}
+      DB_PASSWORD: ${KEYCLOAK_DB_PASS}
+    healthcheck:
+      test: curl --fail http://localhost:8080/
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: bind
+        source: ./data/keycloak
+        target: /opt/keycloak/data/import
+    labels:
+      traefik.enable: true
+      traefik.http.routers.keycloak.rule: Host(`keycloak.pushupdateshub.localhost`)
+      traefik.http.services.keycloak.loadbalancer.server.port: 8080
+  keycloak-db:
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASS}
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: volume
+        source: keycloak-db-data
+        target: /var/lib/postgresql/data
+  traefik:
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --ping=true
+      - --entrypoints.web.address=:80
+    healthcheck:
+      test: traefik healthcheck --ping
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik.rule: Host(`ui.traefik.pushupdateshub.localhost`)
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
