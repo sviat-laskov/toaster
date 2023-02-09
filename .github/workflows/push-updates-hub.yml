@@ -19,19 +19,19 @@ jobs:
     - name: Run script
       run: ./contracts-nuget-push.ps1
       shell: pwsh
-      working-directory: ../../scripts/
+      working-directory: ./push-updates-hub/scripts/
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Restore dependencies
       run: dotnet restore ./PushUpdatesHub.sln
-      working-directory: ../../
+      working-directory: ../push-updates-hub/
     - name: Build
       run: dotnet build --no-restore ./PushUpdatesHub.sln
-      working-directory: ../../
+      working-directory: ./push-updates-hub/
   test:
     runs-on: ubuntu-latest
     steps:
     - name: Test
       run: dotnet test --no-build --verbosity normal ./PushUpdatesHub.sln
-      working-directory: ../../
+      working-directory: ./push-updates-hub/
