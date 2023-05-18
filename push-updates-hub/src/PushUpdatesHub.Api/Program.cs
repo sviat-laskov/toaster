@@ -21,6 +21,12 @@ if (builder.Environment.IsDevelopment())
         {
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
             options.SupportNonNullableReferenceTypes();
+            options.DescribeAllParametersInCamelCase();
+        })
+        .Configure<RouteOptions>(options =>
+        {
+            options.LowercaseUrls = true;
+            options.LowercaseQueryStrings = true;
         })
         .AddControllers()
         .AddJsonOptions(options =>
@@ -36,11 +42,12 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = keycloakOptions.Authority.ToString();
+        options.Authority = keycloakOptions.Uri.ToString();
         options.Audience = keycloakOptions.Audience;
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidIssuer = keycloakOptions.Authority.ToString(),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,

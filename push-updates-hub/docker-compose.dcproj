@@ -5,7 +5,6 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>216608f4-b2b0-4caa-b293-d04532741c42</ProjectGuid>
     <DockerLaunchAction>None</DockerLaunchAction>
-    <DockerServiceUrl>http://pushupdateshub.localhost/swagger/</DockerServiceUrl>
     <DockerServiceName>pushupdateshub</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>

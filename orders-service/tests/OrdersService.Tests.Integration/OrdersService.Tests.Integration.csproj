@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="..\..\..\data\keycloak\toaster-realm.json" Link="Data\toaster-realm.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Extensions.Logging.NUnit" Version="1.0.1" />
+		<PackageReference Include="FluentAssertions" Version="6.9.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.12" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
+		<PackageReference Include="NUnit.Analyzers" Version="3.5.0" />
+		<PackageReference Include="coverlet.collector" Version="3.1.2" />
+		<PackageReference Include="Testcontainers" Version="2.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Presentation\OrdersService.Api\OrdersService.Api.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,92 @@
+title Order flow
+
+participant Keycloak (Identity provider)
+participant Buyer
+participant Admin
+participant PushUpdatesHub
+participant OrdersService
+participant EventStore (Database)
+participant ElasticSearch (SearchIndex)
+participant RabbitMQ (Message broker)
+
+PushUpdatesHub->RabbitMQ (Message broker):subscribe on PushUpdateIntegrationMessages
+OrdersService->EventStore (Database):subscribe on OrderEvents
+Buyer->Keycloak (Identity provider): login
+activate Keycloak (Identity provider)
+Buyer<--Keycloak (Identity provider): access token (JsonWebToken)
+deactivate Keycloak (Identity provider)
+Buyer->PushUpdatesHub:establish SignalR (WebSocket) connection (with access token)
+note over PushUpdatesHub:Session with buyer's id (got from access token) is initiated
+Buyer<--PushUpdatesHub: confirmation
+Buyer->OrdersService:create order via HTTP (with access token)
+activate OrdersService
+note over OrdersService:OrderCreationVM is mapped to OrderCreationCommand
+note over OrdersService:OrderCreationCommand is published via mediator (pattern)
+note over OrdersService:Order domain model is created with buyer's id (got from access token)\nOrderCreatedEvent and OrderSubscriptionAddedEvent\n(buyer is subscribed on order's updates) are added
+OrdersService->EventStore (Database):create events' stream and push created events
+activate EventStore (Database)
+note over EventStore (Database):Stream for order is created
+note over EventStore (Database):OrderCreatedEvent and OrderSubscriptionAddedEvent are added to stream
+OrdersService<--EventStore (Database): write result
+deactivate EventStore (Database)
+Buyer<--OrdersService:HTTP 200 OK
+deactivate OrdersService
+OrdersService<-EventStore (Database):notify about new OrderEvents
+activate OrdersService
+OrdersService->ElasticSearch (SearchIndex):index order document (using OrderCreatedEvent)
+activate ElasticSearch (SearchIndex)
+OrdersService<--ElasticSearch (SearchIndex):acknowledge
+deactivate ElasticSearch (SearchIndex)
+OrdersService->ElasticSearch (SearchIndex):update order document (using OrderSubscriptionAddedEvent)
+activate ElasticSearch (SearchIndex)
+OrdersService<--ElasticSearch (SearchIndex):acknowledge
+deactivate ElasticSearch (SearchIndex)
+OrdersService-->EventStore (Database):acknowledge
+deactivate OrdersService
+Admin->Keycloak (Identity provider): login
+activate Keycloak (Identity provider)
+Admin<--Keycloak (Identity provider): access token (JsonWebToken)
+deactivate Keycloak (Identity provider)
+Admin->OrdersService:search non-confirmed orders
+activate OrdersService
+OrdersService->ElasticSearch (SearchIndex):search non-confirmed orders
+activate ElasticSearch (SearchIndex)
+ElasticSearch (SearchIndex)<--OrdersService:order
+deactivate ElasticSearch (SearchIndex)
+Admin<--OrdersService:order
+deactivate OrdersService
+Admin->OrdersService:confirm order
+activate OrdersService
+OrdersService->EventStore (Database):get order events
+activate EventStore (Database)
+OrdersService<--EventStore (Database):order events
+deactivate EventStore (Database)
+note over OrdersService:OrderEvents are aggregated to Order domain model
+note over OrdersService:OrderConfirmedEvent is created
+OrdersService->EventStore (Database):add OrderConfirmedEvent
+activate EventStore (Database)
+OrdersService<--EventStore (Database):write result
+deactivate EventStore (Database)
+Admin<--OrdersService:HTTP 200 OK
+deactivate OrdersService
+OrdersService<-EventStore (Database):notify about OrderConfirmedEvent
+activate OrdersService
+OrdersService->ElasticSearch (SearchIndex):update order document (using OrderConfirmedEvent)
+activate ElasticSearch (SearchIndex)
+OrdersService->RabbitMQ (Message broker):publish PushUpdateIntegrationMessage with OrderConfirmedPushUpdatePayload
+activate RabbitMQ (Message broker)
+OrdersService<--ElasticSearch (SearchIndex):acknowledge
+deactivate ElasticSearch (SearchIndex)
+OrdersService<--RabbitMQ (Message broker):acknowledge
+deactivate RabbitMQ (Message broker)
+OrdersService-->EventStore (Database):acknowledge
+deactivate OrdersService
+PushUpdatesHub<-RabbitMQ (Message broker):PushUpdateIntegrationMessage with OrderConfirmedPushUpdatePayload
+activate PushUpdatesHub
+note over PushUpdatesHub:SubscriberIds of PushUpdateIntegrationMessage contains buyer's id\nThis user has an active SignalR connection
+Buyer<-PushUpdatesHub:WebSocket push update with order id and order-confirmed type
+activate Buyer
+Buyer-->PushUpdatesHub:acknowledge
+deactivate Buyer
+PushUpdatesHub-->RabbitMQ (Message broker):acknowledge
+deactivate PushUpdatesHub

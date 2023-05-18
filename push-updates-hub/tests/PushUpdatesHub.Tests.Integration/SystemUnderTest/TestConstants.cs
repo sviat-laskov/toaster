@@ -6,7 +6,7 @@ namespace PushUpdatesHub.Tests.Integration.SystemUnderTest
     {
         public static TestUser User1 = new() // Predefined at toaster realm.
         {
-            Id = Guid.Parse("5168b6b2-693c-43fe-9a2b-01b7251961c3"),
+            Id = Guid.Parse("764cc427-7b40-460a-bad0-4648185b77d2"),
             Name = "user1",
             Password = "pass"
         };

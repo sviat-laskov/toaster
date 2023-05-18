@@ -1,0 +1,31 @@
+name: Build & Test OrdersService
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Pack integration messages
+      run: ./contracts-nuget-push.ps1
+      shell: pwsh
+      working-directory: ./push-updates-hub/scripts/
+    - name: Restore dependencies
+      run: dotnet restore ./OrdersService.sln
+      working-directory: ./orders-service/
+    - name: Build
+      run: dotnet build --no-restore ./OrdersService.sln
+      working-directory: ./orders-service/
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ./OrdersService.sln
+      working-directory: ./orders-service/

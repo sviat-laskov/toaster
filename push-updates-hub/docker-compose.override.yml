@@ -5,8 +5,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       RABBITMQ__CONNECTIONSTRING: host=rabbitmq;port=5672;publisherConfirms=true;username=${RABBITMQ_USER};password=${RABBITMQ_PASSWORD}
-      KEYCLOAK__URI: http://keycloak.pushupdateshub.localhost/
-      KEYCLOAK__REALMID: toaster
+      KEYCLOAK__URI: http://keycloak:8080/realms/toaster
+      KEYCLOAK__AUTHORITY: http://keycloak.ordersservice.localhost/realms/toaster
       KEYCLOAK__AUDIENCE: account
     healthcheck:
       test: curl --fail http://localhost/health/ || exit 1
@@ -40,7 +40,7 @@ services:
       traefik.http.routers.rabbitmq.rule: Host(`ui.rabbitmq.pushupdateshub.localhost`)
       traefik.http.services.rabbitmq.loadbalancer.server.port: 15672
   keycloak:
-    command: start-dev --import-realm
+    command: start-dev #--import-realm
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -57,7 +57,7 @@ services:
       retries: 10
     volumes:
       - type: bind
-        source: ./data/keycloak
+        source: ../data/keycloak
         target: /opt/keycloak/data/import
     labels:
       traefik.enable: true

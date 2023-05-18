@@ -15,10 +15,10 @@ namespace PushUpdatesHub.Tests.Integration
         private PushUpdatesHubApplicationFactory _pushUpdatesHubApplication = null!;
 
         [OneTimeSetUp]
-        public void Setup() { _pushUpdatesHubApplication = new PushUpdatesHubApplicationFactory(); }
+        public void Setup() => _pushUpdatesHubApplication = new PushUpdatesHubApplicationFactory();
 
         [OneTimeTearDown]
-        public void Teardown() { _pushUpdatesHubApplication.DisposeAsync().GetAwaiter().GetResult(); }
+        public void Teardown() => _pushUpdatesHubApplication.DisposeAsync().GetAwaiter().GetResult();
 
         [Test]
         public async Task ShouldRetrievePushUpdateViaWebsocketWhenIntegrationMessageIsPublished()

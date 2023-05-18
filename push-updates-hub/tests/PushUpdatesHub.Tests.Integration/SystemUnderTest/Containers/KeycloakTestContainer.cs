@@ -26,18 +26,22 @@ namespace PushUpdatesHub.Tests.Integration.SystemUnderTest.Containers
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(PrivatePort))
             .Build();
 
-        public Uri Uri => new UriBuilder(Uri.UriSchemeHttp, Container.Hostname, Container.GetMappedPublicPort(PrivatePort)).Uri;
+        public Uri Uri => new UriBuilder(Uri.UriSchemeHttp, Container.Hostname, Container.GetMappedPublicPort(PrivatePort))
+        {
+            Path = $"/realms/{KeycloakRealmId}"
+        }.Uri;
 
-        public ValueTask DisposeAsync() { return Container.DisposeAsync(); }
+        public ValueTask DisposeAsync() => Container.DisposeAsync();
 
-        public Task Start() { return Container.StartAsync(); }
+        public Task Start() => Container.StartAsync();
 
         public async Task<string> GetAccessTokenViaDirectAccessGrant(TestUser user)
         {
+            Uri keycloakUri = Uri;
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(Uri, $"realms/{KeycloakRealmId}/protocol/openid-connect/token"),
+                RequestUri = new Uri(keycloakUri, $"{keycloakUri.AbsolutePath}/protocol/openid-connect/token"),
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     { "grant_type", "password" },
@@ -50,7 +54,7 @@ namespace PushUpdatesHub.Tests.Integration.SystemUnderTest.Containers
             HttpResponseMessage response = await httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadFromJsonAsync<JsonDocument>();
-            string accessToken = responseContent!.RootElement.GetProperty(PushUpdateConstants.AccessTokenQueryParameterKey).GetString()!;
+            string accessToken = responseContent!.RootElement.GetProperty("access_token").GetString()!;
 
             return accessToken;
         }

@@ -1,0 +1,39 @@
+﻿version: '3.4'
+
+services:
+  ordersservice:
+    image: ordersservice
+    build:
+      context: .
+      dockerfile: src/Presentation/OrdersService.Api/Dockerfile
+    depends_on:
+      eventstore:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+  eventstore:
+    image: eventstore/eventstore:22.6.0-bionic
+  rabbitmq:
+    image: rabbitmq:3.11.0-management
+  keycloak:
+    image: quay.io/keycloak/keycloak:20.0.2
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+  keycloak-db:
+    image: postgres:15.1-alpine3.17
+  elasticsearch:
+     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+  traefik:
+    image: traefik:v2.9.1
+volumes:
+  eventstore-data:
+  eventstore-logs:
+  rabbitmq-data:
+  rabbitmq-logs:
+  keycloak-db-data:
+  elasticsearch-data:

@@ -31,7 +31,7 @@ namespace PushUpdatesHub.Tests.Integration.SystemUnderTest
                 {
                     { "RabbitMQ:ConnectionString", RabbitMqTestContainer.ConnectionString },
                     { "Keycloak:Uri", KeycloakTestContainer.Uri.ToString() },
-                    { "Keycloak:RealmId", KeycloakTestContainer.KeycloakRealmId },
+                    { "Keycloak:Authority", KeycloakTestContainer.Uri.ToString() },
                     { "Keycloak:Audience", KeycloakTestContainer.Audience }
                 }))
                 .ConfigureLogging(loggingBuilder => loggingBuilder.AddNUnit()));

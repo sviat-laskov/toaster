@@ -23,8 +23,8 @@ namespace PushUpdatesHub.Tests.Integration.SystemUnderTest.Containers
 
         public string ConnectionString => $"host={Container.Hostname};port={Container.GetMappedPublicPort(PrivatePort)};publisherConfirms=true;username={User};password={Password}";
 
-        public ValueTask DisposeAsync() { return Container.DisposeAsync(); }
+        public ValueTask DisposeAsync() => Container.DisposeAsync();
 
-        public Task Start() { return Container.StartAsync(); }
+        public Task Start() => Container.StartAsync();
     }
 }

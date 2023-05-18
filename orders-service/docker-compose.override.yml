@@ -1,0 +1,151 @@
+version: '3.4'
+
+services:
+  ordersservice:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      EVENTSTORE__CONNECTIONSTRING: esdb://eventstore:2113?tls=false
+      RABBITMQ__CONNECTIONSTRING: host=rabbitmq;port=5672;publisherConfirms=true;username=${RABBITMQ_USER};password=${RABBITMQ_PASSWORD}
+      ELASTICSEARCH__CONNECTIONSTRING: http://elasticsearch:9200/
+      ELASTICSEARCH__INDEXNAME: orders
+      KEYCLOAK__URI: http://keycloak:8080/realms/toaster
+      KEYCLOAK__AUTHORITY: http://keycloak.ordersservice.localhost/realms/toaster
+      KEYCLOAK__AUDIENCE: account
+    labels:
+      traefik.enable: true
+      traefik.http.routers.ordersservice.rule: Host(`ordersservice.localhost`)
+      traefik.http.services.ordersservice.loadbalancer.server.port: 80
+  eventstore:
+    environment:
+        #EVENTSTORE_CLUSTER_SIZE: 1
+        #EVENTSTORE_RUN_PROJECTIONS: All
+        #EVENTSTORE_START_STANDARD_PROJECTIONS: true
+        #EVENTSTORE_EXT_TCP_PORT: 1113
+        EVENTSTORE_HTTP_PORT: 2113
+        EVENTSTORE_INSECURE: true
+        #EVENTSTORE_ENABLE_EXTERNAL_TCP: true
+        EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP: true
+    healthcheck:
+      test: curl --fail --insecure http://localhost:2113/health/live/ || exit 1
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: volume
+        source: eventstore-data
+        target: /var/lib/eventstore
+      - type: volume
+        source: eventstore-logs
+        target: /var/log/eventstore
+    labels:
+      traefik.enable: true
+      traefik.http.routers.eventstore.rule: Host(`ui.eventstore.ordersservice.localhost`)
+      traefik.http.services.eventstore.loadbalancer.server.port: 2113
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: rabbitmq-diagnostics --quiet ping
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: volume
+        source: rabbitmq-data
+        target: /var/lib/rabbitmq/
+      - type: volume
+        source: rabbitmq-logs
+        target: /var/log/rabbitmq/
+    labels:
+      traefik.enable: true
+      traefik.http.routers.rabbitmq.rule: Host(`ui.rabbitmq.ordersservice.localhost`)
+      traefik.http.services.rabbitmq.loadbalancer.server.port: 15672
+  keycloak:
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      DB_VENDOR: postgres
+      DB_ADDR: keycloak-db
+      DB_DATABASE: ${KEYCLOAK_DB_NAME}
+      DB_USER: ${KEYCLOAK_DB_USER}
+      DB_PASSWORD: ${KEYCLOAK_DB_PASS}
+    healthcheck:
+      test: curl --fail http://localhost:8080/
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: bind
+        source: ../data/keycloak
+        target: /opt/keycloak/data/import
+    labels:
+      traefik.enable: true
+      traefik.http.routers.keycloak.rule: Host(`keycloak.ordersservice.localhost`)
+      traefik.http.services.keycloak.loadbalancer.server.port: 8080
+  keycloak-db:
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASS}
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    volumes:
+      - type: volume
+        source: keycloak-db-data
+        target: /var/lib/postgresql/data
+  elasticsearch:
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      xpack.security.enabled: false
+    healthcheck:
+      test: curl --user elastic:elastic --fail http://localhost:9200/_cat/health/ || exit 1
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    ports:
+      - target: 9200
+        published: 9200
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: volume
+        source: elasticsearch-data
+        target: /usr/share/elasticsearch/data
+  traefik:
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --ping=true
+      - --entrypoints.web.address=:80
+    healthcheck:
+      test: traefik healthcheck --ping
+      interval: 3s
+      timeout: 5s
+      start_period: 120s
+      retries: 10
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik.rule: Host(`ui.traefik.ordersservice.localhost`)
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
